@@ -1,0 +1,247 @@
+ ImageIcon icon=new ImageIcon(img);
+        JFrame frame=new JFrame();
+        frame.setLayout(new FlowLayout());
+        frame.setSize(1800,900);
+        JLabel lbl=new JLabel();
+        lbl.setIcon(icon);
+        frame.setLocationRelativeTo(null);
+        frame.add(lbl);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        img =ImageIO.read(new File("C:\\Users\\14638\\Desktop\\Board.png"));
+
+        \BoardIcon=new ImageIcon(BoardImg);
+
+
+
+        //////////
+ BufferedImage BoardImg;
+    JFrame frame = new JFrame();
+    ImageIcon BoardIcon;
+    ImageIcon AppleIcon;
+
+    public Board() throws IOException {
+        BoardImg = ImageIO.read(new File("C:\\Users\\14638\\Desktop\\Board.png"));
+    }
+    public void displayBoard(){
+        BoardIcon=new ImageIcon(BoardImg);
+        frame.setLayout(new FlowLayout());
+        frame.setSize(1800,900);
+        JLabel lbl=new JLabel();
+        lbl.setIcon(BoardIcon);
+        frame.setLocationRelativeTo(null);
+        frame.add(lbl);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+        frame.pack();
+    }
+
+    public void paintApple() throws IOException{
+        BufferedImage AppleImg = ImageIO.read(new File("C:\\Users\\14638\\Desktop\\Apple.png"));
+        AppleIcon = new ImageIcon(AppleImg);
+        frame.add(new JLabel(AppleIcon));
+        while (int x; x > 1) {
+            Graphics myGraphics ;
+                // Draw as appropriate using myGraphics
+            myGraphics.dispose();
+            }
+        }
+
+
+        /////////////////////////////////////////////////////////////
+        package SnakeGame;
+        import java.awt.*;
+        import java.awt.event.ActionEvent;
+        import java.awt.event.ActionListener;
+        import java.awt.event.KeyAdapter;
+        import java.awt.event.KeyEvent;
+        import javax.swing.*;
+        import java.awt.Color;
+        import java.awt.Graphics;
+        import javax.swing.JPanel;
+        import java.util.Random;
+
+        public class BoardPanel extends JPanel implements ActionListener {
+
+            static final int SCREEN_WIDTH = 600;
+            static final int SCREEN_HEIGHT = 600;
+
+            static final int UNIT_SIZE = 25;
+            static final int NUM_UNITS = (SCREEN_WIDTH*SCREEN_HEIGHT)/UNIT_SIZE;
+            static final int DELAY = 75;
+
+            final int[] snakePosXArray = new int[NUM_UNITS];
+            final int[] snakePosYArray = new int[NUM_UNITS];
+
+            int bodyParts = 1;
+            int applesEaten;
+            int appleX;
+            int appleY;
+            char direction = 'R';
+            boolean gameRunning = false;
+            Timer timer;
+            Random random;
+
+
+
+           BoardPanel(){
+               random = new Random();
+               this.setPreferredSize(new Dimension(SCREEN_WIDTH,SCREEN_HEIGHT));
+               this.setBackground(Color.white);
+               this.addKeyListener(new MyKeyAdapter());
+               startGame();
+
+           }
+           public void startGame() {
+               gameRunning = true;
+               newApple();
+               timer = new Timer(DELAY,this);
+               timer.start();
+
+           }
+           public void paintComponent(Graphics graphic){
+               super.paintComponent(graphic);
+               draw(graphic);
+           }
+           public void draw(Graphics graphic) {
+               //Draw a grid
+               for( int i = 0;i<SCREEN_HEIGHT/UNIT_SIZE;i++ ) {
+                   graphic.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
+                   graphic.drawLine(0, i*UNIT_SIZE, SCREEN_WIDTH, i*UNIT_SIZE);
+               }
+               //Draw an apple
+               graphic.setColor(Color.red);
+               graphic.fillOval(appleX,appleY,UNIT_SIZE,UNIT_SIZE);
+               //Draw snake
+               for( int i = 0; i < bodyParts; i++ ){
+                   if (i == 0) {
+                       graphic.setColor(new Color(45,150,0));
+                       graphic.fillRect(snakePosXArray[i], snakePosYArray[i], UNIT_SIZE, UNIT_SIZE);
+                   }
+                   else {
+                       graphic.setColor(new Color(45,125,0));
+                       graphic.fillRect(snakePosXArray[i], snakePosYArray[i], UNIT_SIZE, UNIT_SIZE);
+                       }
+                   }
+               }
+
+           public void newApple(){
+            appleX = random.nextInt(SCREEN_WIDTH/UNIT_SIZE)*UNIT_SIZE;
+            appleY = random.nextInt(SCREEN_HEIGHT/UNIT_SIZE)*UNIT_SIZE;
+            }
+           public void moveSnake() {
+               for(int i = bodyParts; i>0;i--) {
+                   snakePosXArray[i] = snakePosXArray[i-1];
+                   snakePosYArray[i] = snakePosYArray[i-1];
+               }
+               switch (direction) {
+                   case 'U' -> snakePosYArray[0] = snakePosYArray[0] - UNIT_SIZE;
+                   case 'D' -> snakePosYArray[0] = snakePosYArray[0] + UNIT_SIZE;
+                   case 'L' -> snakePosXArray[0] = snakePosXArray[0] - UNIT_SIZE;
+                   case 'R' -> snakePosXArray[0] = snakePosXArray[0] + UNIT_SIZE;
+               }
+
+           }
+           public void checkApple() {
+
+           }
+           public void checkCollisions(){
+               //Checks for head colliding with body
+               for (int i = bodyParts; i>0; i--){
+                   if((snakePosXArray[0] == snakePosXArray[i])&&(snakePosYArray[0] == snakePosYArray[i])){
+                       gameRunning = false;
+                   }
+               }
+               //check for left border collision
+               if(snakePosXArray[0]<0 ){
+                   System.out.println("left");
+                   gameRunning = false;
+               }
+               //check for right border collision
+               if(snakePosXArray[0]> SCREEN_WIDTH){
+                   gameRunning = false;
+               }
+               //check top border collision
+               if(snakePosYArray[0]< 0){
+                   System.out.println("bottom");
+                   gameRunning = false;
+               }
+               //check bottom border collision
+               if(snakePosYArray[0]>SCREEN_HEIGHT){
+                   gameRunning = false;
+               }
+               if (gameRunning = false){
+                   timer.stop();
+               }
+
+           }
+           public void endGame(Graphics graphics){
+
+           }
+            @Override
+            public void actionPerformed(ActionEvent event) {
+               if(gameRunning){
+                   moveSnake();
+                   checkApple();
+                   checkCollisions();
+               }
+               repaint();
+            }
+            public class MyKeyAdapter extends KeyAdapter {
+               @Override
+               public void keyPressed(KeyEvent event){
+                   switch(event.getKeyCode()){
+                       case KeyEvent.VK_LEFT:
+                           if(direction != 'R'){
+                               direction = 'L';
+                           }
+                           break;
+                       case KeyEvent.VK_RIGHT:
+                           if(direction != 'L'){
+                               direction = 'R';
+                           }
+                           break;
+                       case KeyEvent.VK_DOWN:
+                           if(direction != 'U'){
+                               direction = 'D';
+                           }
+                           break;
+                       case KeyEvent.VK_UP:
+                           if(direction != 'D'){
+                               direction = 'U';
+                           }
+                           break;
+
+                   }
+
+               }
+
+            }
+        }
+
+
+
+
+ case VK_LEFT:
+                   System.out.println(snakePosYArray[1]);
+                   if(direction != 'R' && snakePosYArray[1] < HALF_UNITS){
+                       direction = 'L';
+                   }
+                   break;
+               case VK_RIGHT:
+                   if (direction != 'L' && snakePosYArray[1] < HALF_UNITS) {
+                       direction = 'R';
+                   }
+                   break;
+               case VK_DOWN:
+                   if (direction != 'U' && snakePosYArray[1] < HALF_UNITS) {
+                       direction = 'D';
+                   }
+                   break;
+               case VK_UP:
+                   if (direction != 'D' && snakePosYArray[1] < HALF_UNITS) {
+                       direction = 'U';
+                   }
+                   break;
